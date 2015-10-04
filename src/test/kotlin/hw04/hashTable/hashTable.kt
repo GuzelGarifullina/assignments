@@ -127,7 +127,8 @@ public class hashTab {
         setC.insert('0')
         setC.delete('2')
         val expectedList = ArrayList<Char>(
-                Arrays.asList('0', '1', '7'))
+                Arrays.asList( '7', '0', '1'))
+        println(setC.toList())
         assertTrue (compareLists(expectedList, setC.toList()))
     }
 }

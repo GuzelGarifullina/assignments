@@ -11,8 +11,9 @@ import java.util.*
 */
 
 public class hashTable<T : Comparable<T>>() : AbstractSet<T> {
-    private  val size = 100
+    private  var size = 5
     private var place = size
+    private val step = size
     private fun nextHash (hash : Int) : Int {
         return (hash + 1).hashCode() % size
     }
@@ -26,17 +27,22 @@ public class hashTable<T : Comparable<T>>() : AbstractSet<T> {
     private  val empty  :  ArrayList<T?> = returnEmpty()
     private var table  :  ArrayList<T?> = empty
     override protected fun makeEmpty() {
-        var arr = ArrayList<T?>()
-        for (i in 0.. (size - 1)){
-            arr.add( null)
-        }
-        table = arr
+        place = size
+        table = returnEmpty()
     }
-
+    private fun resize(){
+        size += step
+        val list = this.toList()
+        makeEmpty()
+        for (elem in list){
+            insert(elem)
+        }
+    }
     override public fun insert (value: T) {
         fun insertf(hashCode : Int, value: T) {
             if (table.get(hashCode) == null ) {
                 table.set(hashCode, value)
+                place --
             }
             else if (table.get(hashCode) != value) {
                 insertf(nextHash(hashCode), value)
@@ -44,7 +50,8 @@ public class hashTable<T : Comparable<T>>() : AbstractSet<T> {
         }
         if (place == 0) {
             if (! this.search(value)){
-                throw  Exception("There no free place")
+                resize()
+                this.insert(value)
             }
             else  {
                 return
@@ -62,10 +69,11 @@ public class hashTable<T : Comparable<T>>() : AbstractSet<T> {
             }
             else {
                 table.set(hashCode, null)
+                place --
                 return true
             }
         }
-        return del (value.hashCode() % 100, value, 0)
+        return del (value.hashCode() % size, value, 0)
     }
     override public fun search (value : T) : Boolean{
         fun find (hashCode:Int, value: T, iter: Int) : Boolean{
@@ -82,7 +90,7 @@ public class hashTable<T : Comparable<T>>() : AbstractSet<T> {
                 return true
             }
         }
-        return find (value.hashCode() % 100, value, 0)
+        return find (value.hashCode() % size, value, 0)
     }
     override public fun toList(): ArrayList<T> {
         var list = ArrayList<T>()
@@ -129,14 +137,18 @@ fun main(args: Array<String>) {
     set.insert(2)
     set.insert(7)
     set.insert(0)
-    val list = set.toList()
-    println(list)
 
-    val set2 = hashTable<Char>()
-    set2.insert('1')
-    set2.insert('2')
-    set2.insert('7')
-    set2.insert('0')
-    val list2 = set2.toList()
-    println(list2)
+    val set2 = hashTable<Int>()
+    set2.insert(8)
+    set2.insert(0)
+    set2.insert(6)
+    set2.insert(7)
+    val e = set.union(set2)
+    e.insert(3)
+    e.insert(10)
+    e.insert(5)
+    e.insert(15)
+    e.insert(25)
+
+    println(e.toList())
 }
