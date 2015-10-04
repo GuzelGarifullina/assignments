@@ -9,7 +9,6 @@ package hw04.hashTable
 
 import org.junit.Test
 import java.util.*
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -130,46 +129,5 @@ public class hashTab {
         val expectedList = ArrayList<Char>(
                 Arrays.asList('0', '1', '7'))
         assertTrue (compareLists(expectedList, setC.toList()))
-    }
-    @Test fun Remove2Size(){
-        set.size = 4
-        set.insert(1)
-        set.insert(2)
-        set.insert(7)
-        set.insert(0)
-        set.delete(2)
-        set.delete(0)
-        val expectedList = ArrayList<Int>(
-                Arrays.asList(1, 7))
-        assertTrue (compareLists(expectedList, set.toList()))
-    }
-    @Test fun UnionSize(){
-        set.size = 4
-        set.insert(1)
-        set.insert(2)
-        set.insert(7)
-        set.insert(0)
-
-        set2.insert(8)
-        set2.insert(0)
-        set2.insert(6)
-        set2.insert(7)
-        val expectedList = ArrayList<Int>(
-                Arrays.asList(0, 8, 1, 2, 6, 7))
-        assertTrue (compareLists(expectedList, set.union(set2).toList()))
-    }
-    @Test fun IntersectionSize(){
-        set.insert(1)
-        set.insert(2)
-        set.insert(7)
-        set.insert(0)
-
-        set2.insert(8)
-        set2.insert(0)
-        set2.insert(6)
-        set2.insert(7)
-        val expectedList = ArrayList<Int>(
-                Arrays.asList(0, 7))
-        assertTrue (compareLists(expectedList, set.intersection(set2).toList()))
     }
 }

@@ -8,79 +8,98 @@ import java.util.*
    made by Guzel Garifullina
    Estimated time 4 hours
    real time      3 hour
-
-   Replaced open addressing hash
-   with separate chaining hash,
-   because AbstractSet doesn't know
-   anything about hash changed size.
-   So any insertion to the union
-   of 2 hashes(with resized hash)
-   will crash program
 */
 
 public class hashTable<T : Comparable<T>>() : AbstractSet<T> {
-    internal  var size = 100
-    private  fun returnEmpty() : ArrayList<ArrayList<T>>{
-        var arr = ArrayList<ArrayList<T>>()
+    private  val size = 100
+    private var place = size
+    private fun nextHash (hash : Int) : Int {
+        return (hash + 1).hashCode() % size
+    }
+    private  fun returnEmpty() :  ArrayList<T?>{
+        var arr = ArrayList<T?>()
         for (i in 0.. (size - 1)){
-            arr.add(i, ArrayList<T>())
+            arr.add( null)
         }
         return arr
     }
-    private var table  :  ArrayList<ArrayList<T>> = returnEmpty()
-    override public  fun makeEmpty() {
-        table = returnEmpty()
-    }
-    private fun toHash<A : Comparable<A>>(value : A) : Int {
-        return value.hashCode() % size
-    }
-    override public fun insert (value: T) {
-        if (! search(value)){
-            var list = table.get(toHash<T>(value))
-            list.add(value)
+    private  val empty  :  ArrayList<T?> = returnEmpty()
+    private var table  :  ArrayList<T?> = empty
+    override protected fun makeEmpty() {
+        var arr = ArrayList<T?>()
+        for (i in 0.. (size - 1)){
+            arr.add( null)
         }
+        table = arr
     }
-    private  fun find (list: ArrayList<T>, value: T) : Int{
-        for (i in list.indices){
-            if (list.get(i) == value){
-                return i
+
+    override public fun insert (value: T) {
+        fun insertf(hashCode : Int, value: T) {
+            if (table.get(hashCode) == null ) {
+                table.set(hashCode, value)
+            }
+            else if (table.get(hashCode) != value) {
+                insertf(nextHash(hashCode), value)
             }
         }
-        return -1
+        if (place == 0) {
+            if (! this.search(value)){
+                throw  Exception("There no free place")
+            }
+            else  {
+                return
+            }
+        }
+        insertf(value.hashCode() % size, value)
     }
     override public fun delete (value : T) : Boolean{
-        var list = table.get(toHash<T>(value))
-        val index = find(list, value)
-        if (index > -1){
-            list.remove(index)
-            return true
-        }
-        else {
-            return false
-        }
-    }
-    override public fun search (value : T) : Boolean{
-        for ( list in table){
-            if (find(list, value) > -1){
+        fun del (hashCode:Int, value: T, iter: Int) : Boolean{
+            if (iter > size){
+                return false
+            }
+            if (table.get(hashCode) != value) {
+                return del (nextHash(hashCode), value, iter + 1)
+            }
+            else {
+                table.set(hashCode, null)
                 return true
             }
         }
-        return false
+        return del (value.hashCode() % 100, value, 0)
+    }
+    override public fun search (value : T) : Boolean{
+        fun find (hashCode:Int, value: T, iter: Int) : Boolean{
+            if (iter > size){
+                return false
+            }
+            if (table.get(hashCode) == null ) {
+                return false
+            }
+            if (table.get(hashCode) != value) {
+                return find (nextHash(hashCode), value, iter + 1)
+            }
+            else {
+                return true
+            }
+        }
+        return find (value.hashCode() % 100, value, 0)
     }
     override public fun toList(): ArrayList<T> {
-        var result = ArrayList<T>()
-        for (i in table.indices){
-            result.addAll(table.get(i))
+        var list = ArrayList<T>()
+        for (element in table){
+            if (element != null){
+                list.add(element)
+            }
         }
-        return result
+        return list
     }
     override public fun union (set : AbstractSet<T>) : AbstractSet<T> {
         val list = set.toList()
-        val set2 = this
+        val set = this
         for (value in list){
-            set2.insert(value)
+            set.insert(value)
         }
-        return set2
+        return set
     }
     override public fun intersection (set : AbstractSet<T>) : AbstractSet<T> {
         fun getResultedList(set : AbstractSet<T>) : List<T> {
@@ -95,12 +114,12 @@ public class hashTable<T : Comparable<T>>() : AbstractSet<T> {
             return  resultedList
         }
         val resultedList = getResultedList(set)
-        val set2 = this
-        set2.makeEmpty()
+        val set = this
+        set.makeEmpty()
         for (elem in resultedList){
-            set2.insert(elem)
+            set.insert(elem)
         }
-        return set2
+        return set
     }
 }
 
